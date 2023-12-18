@@ -21,7 +21,10 @@ import tools.train as train
 #config_file = "configs/config_vit_base32_boris.py" # works
 #config_file = "configs/config_levit_256_boris.py" # works badly
 #config_file = "configs/config_effnetv2_m_boris.py" # works weird
-config_file = "configs/config_beit_boris.py"# works badly
+#config_file = "configs/config_beit_boris.py"# works badly
+
+
+
 
 sys.argv.append(config_file)
 
