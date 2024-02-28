@@ -16,7 +16,7 @@ import mmpretrain
 import tools.train as train
 
 
-#config_file = "configs/config_resnet50_boris.py" # works
+config_file = "configs/config_resnet50_boris_try.py" # works
 #config_file = "configs/config_resnext50_boris.py" # works
 #config_file = "configs/config_vit_base32_boris.py" # works
 #config_file = "configs/config_levit_256_boris.py" # works badly

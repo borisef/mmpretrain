@@ -207,3 +207,83 @@ class CrossEntropyLoss(nn.Module):
             avg_factor=avg_factor,
             **kwargs)
         return loss_cls
+
+
+
+@MODELS.register_module()
+class MyCrossEntropyLoss(nn.Module):
+    """Cross entropy loss.
+
+    Args:
+        use_sigmoid (bool): Whether the prediction uses sigmoid
+            of softmax. Defaults to False.
+        use_soft (bool): Whether to use the soft version of CrossEntropyLoss.
+            Defaults to False.
+        reduction (str): The method used to reduce the loss.
+            Options are "none", "mean" and "sum". Defaults to 'mean'.
+        loss_weight (float):  Weight of the loss. Defaults to 1.0.
+        class_weight (List[float], optional): The weight for each class with
+            shape (C), C is the number of classes. Default None.
+        pos_weight (List[float], optional): The positive weight for each
+            class with shape (C), C is the number of classes. Only enabled in
+            BCE loss when ``use_sigmoid`` is True. Default None.
+    """
+
+    def __init__(self,
+                 use_sigmoid=False,
+                 use_soft=False,
+                 reduction='mean',
+                 loss_weight=1.0,
+                 class_weight=None,
+                 pos_weight=None):
+        super(MyCrossEntropyLoss, self).__init__()
+        self.use_sigmoid = use_sigmoid
+        self.use_soft = use_soft
+        assert not (
+            self.use_soft and self.use_sigmoid
+        ), 'use_sigmoid and use_soft could not be set simultaneously'
+
+        self.reduction = reduction
+        self.loss_weight = loss_weight
+        self.class_weight = class_weight
+        self.pos_weight = pos_weight
+
+        if self.use_sigmoid:
+            self.cls_criterion = binary_cross_entropy
+        elif self.use_soft:
+            self.cls_criterion = soft_cross_entropy
+        else:
+            self.cls_criterion = cross_entropy
+
+    def forward(self,
+                cls_score,
+                label,
+                weight=None,
+                avg_factor=None,
+                reduction_override=None,
+                **kwargs):
+        assert reduction_override in (None, 'none', 'mean', 'sum')
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
+
+        if self.class_weight is not None:
+            class_weight = cls_score.new_tensor(self.class_weight)
+        else:
+            class_weight = None
+
+        # only BCE loss has pos_weight
+        if self.pos_weight is not None and self.use_sigmoid:
+            pos_weight = cls_score.new_tensor(self.pos_weight)
+            kwargs.update({'pos_weight': pos_weight})
+        else:
+            pos_weight = None
+
+        loss_cls = self.loss_weight * self.cls_criterion(
+            cls_score,
+            label,
+            weight,
+            class_weight=class_weight,
+            reduction=reduction,
+            avg_factor=avg_factor,
+            **kwargs)
+        return loss_cls

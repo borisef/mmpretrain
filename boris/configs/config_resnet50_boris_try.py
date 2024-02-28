@@ -3,6 +3,9 @@ auto_scale_lr = dict(base_batch_size=256)
 NUM_CLASSES = 7
 resume = True
 
+
+custom_imports = dict(imports=['mmpretrain.engine.hooks.atraf.boris.visualization_extra_hook'], allow_failed_imports=False)
+
 data_preprocessor = dict(
     mean=[
         123.675,
@@ -23,7 +26,7 @@ default_hooks = dict(
     param_scheduler=dict(type='ParamSchedulerHook'),
     sampler_seed=dict(type='DistSamplerSeedHook'),
     timer=dict(type='IterTimerHook'),
-    visualization=dict(enable=True, type='VisualizationHook'))
+    visualization=dict(enable=True, type='VisualizationExtraHook', conf_mat_params = {'save_csv': True, 'save_img': True}))
 default_scope = 'mmpretrain'
 env_cfg = dict(
     cudnn_benchmark=False,
@@ -40,7 +43,7 @@ model = dict(
         type='ResNet'),
     head=dict(
         in_channels=2048,
-        loss=dict(loss_weight=1.0, type='CrossEntropyLoss'),
+        loss=dict(loss_weight=1.0, type='MyCrossEntropyLoss'),
         num_classes=NUM_CLASSES,
         topk=(
             1,
