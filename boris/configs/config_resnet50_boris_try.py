@@ -121,9 +121,11 @@ val_dataloader = dict(
     sampler=dict(shuffle=False, type='DefaultSampler'))
 
 val_evaluator = [
-  dict(type='Accuracy', topk=(1, 5)),
-  dict(type='ConfusionMatrix'), #??
-  dict(type='SingleLabelMetric', items=['precision', 'recall']),
+  # dict(type='Accuracy', topk=(1, 5)),
+  # dict(type='ConfusionMatrix'), #??
+  # dict(type='SingleLabelMetric', items=['precision', 'recall', 'support', 'f1-score'], average = 'macro', prefix = 'macro'), # 'macro', 'micro', 'none'
+  # dict(type='SingleLabelMetric', items=['precision', 'recall', 'support', 'f1-score'], average = 'micro', prefix = 'micro'), # 'macro', 'micro', 'none'
+  dict(type='SingleLabelMetric', items=['precision', 'recall', 'support', 'f1-score'], average = None, prefix = 'classwise'), # 'macro', 'micro', 'none'
 ]
 test_evaluator = val_evaluator
 
